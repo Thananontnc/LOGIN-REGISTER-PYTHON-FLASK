@@ -8,7 +8,7 @@ app = Flask(__name__)
 db = mysql.connector.connect(
     host='localhost',
     user='root',
-    password='Plai1412',
+    password='root',
     database = 'user_info',
     port=3306
 )
@@ -37,17 +37,17 @@ def register():
 
 @app.route('/login-form',methods=['POST',"GET"])
 def login_form():
-    user_email = request.form['email']
-    user_name = request.form['user_name']
-    password = request.form['password']
-    query_from_db = "SELECT * FROM users WHERE username = %s and email = %s and password_hash = %s"
-    
-    cursor.execute('SELECT * FROM users;')
-    users = cursor.fetchall()
-    
-    for user in users:
-        if user_name == user['username'] and user_email == user['email'] and check_password_hash(user['password_hash'],password):
-            return redirect(url_for('main.html'))
+    if request.method == "POST":
+        user_email = request.form['email']
+        user_name = request.form['user_name']
+        password = request.form['password']
+        query_from_db = "SELECT * FROM users WHERE username = %s and email = %s and password_hash = %s"
+        
+        cursor.execute("SELECT * FROM users WHERE username = %s AND email = %s", (user_name, user_email))
+        user = cursor.fetchone()
+        if user and check_password_hash(user['password_hash'], password):
+            return redirect(url_for('main'))
+
         else:
             return "Fail Login"
         
